@@ -22,8 +22,11 @@ import { saveSubscription } from '../api/_lib/manageSubscription'
         }
     }
 
-    const relevantEvents = new Set([ //new Set é como se fosse um array onde não tem objetos repetidos dentro dele
-        'checkout.session.completed'
+    const relevantEvents = new Set([ //new Set é como se fosse um array onde não tem objetos repetidos dentro dele | esses são os webhooks que o stripe listen (cmd) escuta
+        'checkout.session.completed',
+        'customer.subscription.created',
+        'customer.subscription.updated',
+        'customer.subscription.deleted',
     ])
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
@@ -48,7 +51,18 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
         if(relevantEvents.has(type)) {
             try {
-                switch (type) {
+                switch (type) { 
+                    case 'customer.subscription.created':
+                    case 'customer.subscription.updated':
+                    case 'customer.subscription.deleted':
+                        const subscription = event.data.object as Stripe.Subscription;
+
+                        await saveSubscription( // type === 'customer.subscription.created' -> retorna true assim sendo uma createAction, assim caindo no if e criando uma nova subscription
+                            subscription.id,
+                            subscription.customer.toString(),
+                            type === 'customer.subscription.created'
+                        );
+                        break;
                     case 'checkout.session.completed':
                     
                         const checkoutSession = event.data.object as Stripe.Checkout.Session
@@ -56,6 +70,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                         await saveSubscription(
                             checkoutSession.subscription.toString(), // parâmetros passados para a funcion saveSubscription
                             checkoutSession.customer.toString(),
+                            true // true assim sendo uma createAction, assim caindo no if e criando uma nova subscription
                         )
 
                         break;
