@@ -17,13 +17,13 @@ interface PostPreviewProps {
     }
 }
 
-export default function PostPreview({ post }) {
-    const { data: session } = useSession();
-    const router = useRouter()
+export default function PostPreview({ post }: PostPreviewProps){
+    const { data: session } = useSession()
+    const router = useRouter() //Chamar o useRouter
 
     useEffect(() => {
-        if (session?.activeSubscription) {
-            router.push(`/posts/${post.slug}`)
+        if(session?.activeSubscription){
+            router.push(`/posts/${post.slug}`) //Utilizar o router do useRouter
         }
     }, [session])
 

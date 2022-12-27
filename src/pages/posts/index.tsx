@@ -29,7 +29,7 @@ export default function Posts({ posts }: PostsProps ) {
                 <div className={styles.posts}>
                     { posts.map(post => ( // Slug é tipo o link que é criado pelo título -> ex http://localhost:3000/posts/motogp-bagnaia-segura-vinales-e-vence-o-gp-da-gra-bretanha
                         <Link key={post.slug} href={`/posts/preview/${post.slug}`}>
-                            <a key={post.slug}>
+                            <a>
                                 <time>{post.updatedAt}</time>
                                 <strong>{post.title}</strong>
                                 <p>{post.excerpt}</p>
